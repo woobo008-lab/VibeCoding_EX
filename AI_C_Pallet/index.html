@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f5f1">
+  <title>AI 컬러 팔레트</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">Color palette studio</p>
+    <h1>단어에서 시작하는<br>나만의 컬러</h1>
+    <p class="description">떠오르는 테마 단어를 입력하면 그 분위기를 담은 색상을 만들어 드려요.</p>
+
+    <form class="generator" id="palette-form">
+      <input
+        id="theme-input"
+        name="theme"
+        type="text"
+        placeholder="예: 고요한 숲, 여름 바다"
+        aria-label="테마 단어"
+        maxlength="120"
+        autocomplete="off"
+        required
+      >
+      <button type="submit">팔레트 생성</button>
+      <button class="shuffle-button" id="shuffle-button" type="button" aria-label="색상 팔레트 셔플" disabled>
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M17 3h4v4M20.5 3.5l-5.2 5.2M4 7h2.2c1.6 0 2.5.8 3.3 2l5 7c.8 1.2 1.7 2 3.3 2H21M17 18l4 0v4m-.5-4.5-5.2-5.2M4 17h2.2c1.1 0 1.9-.4 2.6-1.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>셔플</span>
+      </button>
+    </form>
+    <p class="status" id="status" role="status" aria-live="polite"></p>
+
+    <section class="palette-section" aria-labelledby="palette-title">
+      <div class="palette-heading">
+        <h2 id="palette-title">COLOR PALETTE</h2>
+        <span class="theme-label" id="theme-label" aria-live="polite"></span>
+      </div>
+      <div class="swatches" id="swatches" aria-label="생성된 색상 팔레트"></div>
+    </section>
+  </main>
+</body>
+</html>

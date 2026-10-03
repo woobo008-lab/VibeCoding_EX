@@ -1,0 +1,811 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f2f6f3">
+  <title>오늘의 할 일</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --page: #fbf5e5;
+      --paper: #ffffff;
+      --ink: #19342c;
+      --muted: #71847b;
+      --line: #dce7e0;
+      --field-line: #e9dfc5;
+      --green: #287656;
+      --green-dark: #1d6045;
+      --green-pale: #e6f2eb;
+      --blue: #3976bd;
+      --blue-pale: #eef5fd;
+      --coral: #d96d53;
+      --shadow: 0 16px 44px rgb(28 65 48 / 7%);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background:
+        radial-gradient(ellipse at 88% 4%, rgb(244 222 157 / 48%), transparent 29rem),
+        linear-gradient(180deg, #fffdf6 0%, var(--page) 46rem);
+      color: var(--ink);
+      font-family: "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, input { font: inherit; }
+    button { color: inherit; }
+
+    .app-shell {
+      width: min(100% - 48px, 704px);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 28px 0 64px;
+    }
+
+    .topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 34px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 1.2px;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border-radius: 11px;
+      background: var(--green);
+      color: white;
+    }
+
+    .brand-mark svg { width: 19px; height: 19px; }
+
+    .today-date {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .intro { margin-bottom: 26px; }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: 0;
+      line-height: 1.3;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .add-form {
+      display: flex;
+      min-height: 62px;
+      gap: 10px;
+      padding: 7px;
+      border: 1px solid var(--field-line);
+      border-radius: 999px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+      transition: border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    .add-form:focus-within {
+      border-color: #91bba3;
+      box-shadow: 0 0 0 4px rgb(40 118 86 / 9%), var(--shadow);
+    }
+
+    .add-input {
+      width: 100%;
+      min-width: 0;
+      padding: 0 12px;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--ink);
+      font-size: 15px;
+    }
+
+    .add-input::placeholder { color: #9aa9a1; }
+
+    .add-button {
+      display: inline-flex;
+      flex: 0 0 auto;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-width: 94px;
+      padding: 0 16px;
+      border: 0;
+      border-radius: 10px;
+      background: var(--green);
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 700;
+      transition: background 150ms ease, transform 150ms ease;
+    }
+
+    .add-button:hover { background: var(--green-dark); }
+    .add-button:active { transform: scale(.97); }
+    .add-button svg { width: 17px; height: 17px; }
+
+    .workspace { margin-top: 28px; }
+
+    .workspace-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .workspace-label {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .list-create-form { display: flex; gap: 8px; margin-bottom: 10px; }
+
+    .list-name-input {
+      width: 100%;
+      min-width: 0;
+      min-height: 44px;
+      padding: 0 13px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      outline: 0;
+      background: white;
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .list-name-input:focus { border-color: #91bba3; box-shadow: 0 0 0 3px rgb(40 118 86 / 9%); }
+
+    .list-create-button {
+      display: inline-flex;
+      flex: 0 0 auto;
+      min-width: 92px;
+      min-height: 44px;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 0 12px;
+      border: 0;
+      border-radius: 10px;
+      background: var(--green);
+      color: white;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .list-create-button:hover { background: var(--green-dark); }
+    .list-create-button svg { width: 17px; height: 17px; }
+
+    .list-spaces {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 2px 1px 8px;
+      scrollbar-width: thin;
+    }
+
+    .list-space {
+      display: inline-flex;
+      flex: 0 0 auto;
+      min-height: 42px;
+      align-items: center;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: white;
+    }
+
+    .list-space[aria-current="true"] { border-color: #a9cbb6; background: var(--green-pale); }
+
+    .list-space-select {
+      max-width: 190px;
+      min-height: 40px;
+      overflow: hidden;
+      padding: 0 12px;
+      border: 0;
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .list-space[aria-current="true"] .list-space-select { color: var(--green-dark); }
+
+    .list-space-delete {
+      display: grid;
+      flex: 0 0 36px;
+      width: 36px;
+      height: 38px;
+      place-items: center;
+      border: 0;
+      border-left: 1px solid rgb(28 65 48 / 8%);
+      background: transparent;
+      color: #8a9a91;
+      cursor: pointer;
+    }
+
+    .list-space-delete:hover { background: #fff0eb; color: var(--coral); }
+    .list-space-delete svg { width: 17px; height: 17px; }
+
+    .overview {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 41px 0 17px;
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: 19px;
+      font-weight: 800;
+    }
+
+    .section-heading { display: flex; align-items: center; gap: 7px; min-width: 0; }
+    .section-title { overflow-wrap: anywhere; }
+
+    .remaining {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .remaining strong { color: var(--green); font-weight: 800; }
+
+    .filters {
+      display: flex;
+      flex: 0 0 auto;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: rgb(255 255 255 / 68%);
+    }
+
+    .filter-button {
+      min-height: 34px;
+      padding: 0 12px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .filter-button[aria-pressed="true"] {
+      background: var(--green-pale);
+      color: var(--green-dark);
+    }
+
+    .progress-track {
+      height: 4px;
+      overflow: hidden;
+      margin: 0 0 13px;
+      border-radius: 99px;
+      background: #e1eae4;
+    }
+
+    .progress-fill {
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--green);
+      transition: width 220ms ease;
+    }
+
+    .list-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 9px;
+    }
+
+    .list-actions[hidden] { display: none; }
+
+    .clear-completed-button {
+      display: inline-flex;
+      min-height: 38px;
+      align-items: center;
+      gap: 7px;
+      padding: 0 9px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--coral);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .clear-completed-button:hover { background: #fff0eb; }
+    .clear-completed-button svg { width: 16px; height: 16px; }
+
+    .task-list {
+      display: grid;
+      gap: 6px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .task-row {
+      display: flex;
+      min-height: 58px;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 8px 7px 14px;
+      border: 1px solid #e3ebe6;
+      border-radius: 13px;
+      background: rgb(255 255 255 / 88%);
+      animation: arrive 180ms ease both;
+    }
+
+    .task-row:not(.is-complete) {
+      border-color: #cbdcf0;
+      background: var(--blue-pale);
+    }
+
+    .complete-button {
+      display: grid;
+      flex: 0 0 25px;
+      width: 25px;
+      height: 25px;
+      place-items: center;
+      padding: 0;
+      border: 1.5px solid #b5c8bc;
+      border-radius: 8px;
+      background: white;
+      color: white;
+      cursor: pointer;
+      transition: background 150ms ease, border-color 150ms ease, transform 150ms ease;
+    }
+
+    .complete-button:hover { border-color: var(--green); transform: scale(1.05); }
+    .task-row:not(.is-complete) .complete-button { border-color: #83a9d5; background: #fff; }
+    .task-row:not(.is-complete) .complete-button:hover { border-color: var(--blue); }
+    .complete-button[aria-checked="true"] { border-color: var(--green); background: var(--green); }
+    .complete-button svg { width: 15px; height: 15px; opacity: 0; }
+    .complete-button[aria-checked="true"] svg { opacity: 1; }
+
+    .task-text {
+      flex: 1;
+      min-width: 0;
+      overflow-wrap: anywhere;
+      color: var(--ink);
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .task-row:not(.is-complete) .task-text { color: var(--blue); }
+    .task-row.is-complete .task-text { color: #94a39b; text-decoration: line-through; }
+
+    .delete-button {
+      display: grid;
+      flex: 0 0 38px;
+      width: 38px;
+      height: 38px;
+      place-items: center;
+      padding: 0;
+      border: 0;
+      border-radius: 10px;
+      background: transparent;
+      color: #8a9a91;
+      cursor: pointer;
+      transition: background 150ms ease, color 150ms ease;
+    }
+
+    .delete-button:hover { background: #fff0eb; color: var(--coral); }
+    .delete-button svg { width: 18px; height: 18px; }
+
+    .empty-state {
+      display: grid;
+      min-height: 150px;
+      place-content: center;
+      justify-items: center;
+      gap: 8px;
+      border: 1px dashed #cbd9d0;
+      border-radius: 13px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .empty-mark {
+      display: grid;
+      width: 35px;
+      height: 35px;
+      place-items: center;
+      margin-bottom: 3px;
+      border-radius: 12px;
+      background: var(--green-pale);
+      color: var(--green);
+    }
+
+    .empty-mark svg { width: 18px; height: 18px; }
+    .empty-title { margin: 0; color: var(--ink); font-size: 14px; font-weight: 700; }
+    .empty-hint { margin: 0; font-size: 12px; }
+    .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+
+    @keyframes arrive {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 540px) {
+      .app-shell { width: min(100% - 32px, 440px); padding: 16px 0 40px; }
+      .topline { margin-bottom: 26px; }
+      h1 { font-size: 28px; }
+      .subtitle { font-size: 14px; }
+      .overview { align-items: flex-start; flex-direction: column; gap: 15px; margin-top: 34px; }
+      .workspace { margin-top: 24px; }
+      .filters { width: 100%; }
+      .filter-button { flex: 1; }
+      .task-row { gap: 8px; padding-left: 11px; }
+      .add-button { min-width: 48px; padding: 0 13px; }
+      .add-button span { display: none; }
+    }
+
+    @media (max-width: 360px) {
+      .topline { flex-wrap: wrap; row-gap: 10px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topline">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.3 4.3L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span>DAYMARK</span>
+      </div>
+      <time class="today-date" id="today-date"></time>
+    </header>
+
+    <section class="intro" aria-labelledby="page-title">
+      <p class="eyebrow">A LITTLE PROGRESS, EVERY DAY</p>
+      <h1 id="page-title">오늘의 할 일</h1>
+      <p class="subtitle">작은 한 걸음부터, 하나씩 해내 볼까요?</p>
+    </section>
+
+    <form class="add-form" id="add-form">
+      <label class="visually-hidden" for="task-input">새 할 일</label>
+      <input class="add-input" id="task-input" name="task" type="text" maxlength="120" placeholder="새로운 할 일을 입력하세요" autocomplete="off" required>
+      <button class="add-button" type="submit" aria-label="할 일 추가">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <span>추가</span>
+      </button>
+    </form>
+
+    <section class="workspace" aria-labelledby="workspace-title">
+      <div class="workspace-heading">
+        <h2 class="workspace-label" id="workspace-title">내 목록 공간</h2>
+      </div>
+      <form class="list-create-form" id="list-create-form">
+        <label class="visually-hidden" for="list-name-input">새 목록 이름</label>
+        <input class="list-name-input" id="list-name-input" type="text" maxlength="30" placeholder="새 목록 이름" autocomplete="off" required>
+        <button class="list-create-button" type="submit" aria-label="목록 추가">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <span>목록 추가</span>
+        </button>
+      </form>
+      <nav class="list-spaces" id="list-spaces" aria-label="할 일 목록 공간"></nav>
+    </section>
+
+    <section aria-labelledby="list-title">
+      <div class="overview">
+        <div>
+          <div class="section-heading">
+            <h2 class="section-title" id="list-title">내 할 일</h2>
+          </div>
+          <p class="remaining" id="remaining-count" aria-live="polite"></p>
+        </div>
+        <nav class="filters" aria-label="할 일 필터">
+          <button class="filter-button" type="button" data-filter="all" aria-pressed="true">전체</button>
+          <button class="filter-button" type="button" data-filter="active" aria-pressed="false">진행 중</button>
+          <button class="filter-button" type="button" data-filter="completed" aria-pressed="false">완료</button>
+        </nav>
+      </div>
+      <div class="progress-track" role="progressbar" aria-label="오늘의 완료율" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+      <div class="list-actions" id="completed-actions" hidden>
+        <button class="clear-completed-button" id="clear-completed" type="button">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.5 7h15M9.5 7V4.5h5V7m-7.5 0 1 13h8l1-13M10 10.5v6m4-6v6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          완료 항목 모두 삭제
+        </button>
+      </div>
+      <ul class="task-list" id="task-list" aria-label="할 일 목록"></ul>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const STORAGE_KEY = "daymark-lists-v1";
+      const LEGACY_STORAGE_KEY = "daymark-tasks-v1";
+      const taskList = document.querySelector("#task-list");
+      const taskInput = document.querySelector("#task-input");
+      const listNameInput = document.querySelector("#list-name-input");
+      const listSpaces = document.querySelector("#list-spaces");
+      const listTitle = document.querySelector("#list-title");
+      const countLabel = document.querySelector("#remaining-count");
+      const progressTrack = document.querySelector(".progress-track");
+      const progressFill = document.querySelector("#progress-fill");
+      const completedActions = document.querySelector("#completed-actions");
+      const filters = document.querySelector(".filters");
+      let selectedFilter = "all";
+      let lists = loadLists();
+      let activeListId = lists[0].id;
+      let tasks = activeList().tasks;
+
+      document.querySelector("#today-date").textContent = new Intl.DateTimeFormat("ko-KR", {
+        year: "numeric", month: "long", day: "numeric", weekday: "long"
+      }).format(new Date());
+
+      function normalizeTasks(value) {
+        if (!Array.isArray(value)) return [];
+        return value.filter((task) => task && typeof task.id === "string" && typeof task.title === "string" && typeof task.completed === "boolean");
+      }
+
+      function loadLists() {
+        try {
+          const storedLists = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+          if (Array.isArray(storedLists)) {
+            const validLists = storedLists.filter((list) => list && typeof list.id === "string" && typeof list.name === "string").map((list) => ({
+              id: list.id,
+              name: list.name,
+              tasks: normalizeTasks(list.tasks)
+            }));
+            if (validLists.length) return validLists;
+          }
+          const oldTasks = JSON.parse(localStorage.getItem(LEGACY_STORAGE_KEY) || "[]");
+          return [{ id: `${Date.now()}-default`, name: "내 할 일", tasks: normalizeTasks(oldTasks) }];
+        } catch {
+          return [{ id: `${Date.now()}-default`, name: "내 할 일", tasks: [] }];
+        }
+      }
+
+      function saveTasks() {
+        try {
+          activeList().tasks = tasks;
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(lists));
+        } catch {
+          countLabel.textContent = "저장 공간을 사용할 수 없어 변경 사항이 저장되지 않았어요.";
+        }
+      }
+
+      function activeList() {
+        return lists.find((list) => list.id === activeListId) || lists[0];
+      }
+
+      function renderListSpaces() {
+        listSpaces.replaceChildren();
+        for (const list of lists) {
+          const space = document.createElement("div");
+          space.className = "list-space";
+          space.setAttribute("aria-current", String(list.id === activeListId));
+
+          const select = document.createElement("button");
+          select.className = "list-space-select";
+          select.type = "button";
+          select.textContent = list.name;
+          select.setAttribute("aria-label", `${list.name} 목록 열기`);
+          select.dataset.listId = list.id;
+          select.dataset.action = "select-list";
+
+          const remove = makeButton(
+            "list-space-delete",
+            `${list.name} 목록 삭제`,
+            '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.5 7h15M9.5 7V4.5h5V7m-7.5 0 1 13h8l1-13M10 10.5v6m4-6v6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+          );
+          remove.dataset.action = "delete-list";
+          remove.dataset.listId = list.id;
+          remove.disabled = lists.length === 1;
+          remove.title = lists.length === 1 ? "마지막 목록은 삭제할 수 없어요" : "목록 삭제";
+
+          space.append(select, remove);
+          listSpaces.append(space);
+        }
+        listTitle.textContent = activeList().name;
+      }
+
+      function makeButton(className, label, icon, attributes = {}) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = className;
+        button.setAttribute("aria-label", label);
+        for (const [name, value] of Object.entries(attributes)) button.setAttribute(name, value);
+        button.innerHTML = icon;
+        return button;
+      }
+
+      function render() {
+        renderListSpaces();
+        const completedCount = tasks.filter((task) => task.completed).length;
+        const remaining = tasks.length - completedCount;
+        countLabel.innerHTML = `남은 할 일 <strong>${remaining}</strong>개`;
+        completedActions.hidden = completedCount === 0;
+
+        const percent = tasks.length ? Math.round((completedCount / tasks.length) * 100) : 0;
+        progressFill.style.width = `${percent}%`;
+        progressTrack.setAttribute("aria-valuenow", String(percent));
+
+        for (const button of filters.querySelectorAll("button")) {
+          button.setAttribute("aria-pressed", String(button.dataset.filter === selectedFilter));
+        }
+
+        const visibleTasks = tasks.filter((task) => {
+          if (selectedFilter === "active") return !task.completed;
+          if (selectedFilter === "completed") return task.completed;
+          return true;
+        });
+        taskList.replaceChildren();
+
+        if (visibleTasks.length === 0) {
+          const empty = document.createElement("li");
+          empty.className = "empty-state";
+          const title = tasks.length === 0
+            ? "아직 할 일이 없어요"
+            : selectedFilter === "active" ? "진행 중인 일이 없어요" : "완료한 일이 없어요";
+          const hint = tasks.length === 0 ? "위에서 오늘의 첫 할 일을 추가해 보세요." : "다른 목록도 살펴보세요.";
+          empty.innerHTML = `<span class="empty-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.3 4.3L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><p class="empty-title"></p><p class="empty-hint"></p>`;
+          empty.querySelector(".empty-title").textContent = title;
+          empty.querySelector(".empty-hint").textContent = hint;
+          taskList.append(empty);
+          return;
+        }
+
+        for (const task of visibleTasks) {
+          const row = document.createElement("li");
+          row.className = `task-row${task.completed ? " is-complete" : ""}`;
+
+          const check = makeButton(
+            "complete-button",
+            task.completed ? `${task.title}, 완료 취소` : `${task.title}, 완료로 표시`,
+            '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12.5 4.3 4.3L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+            { role: "checkbox", "aria-checked": String(task.completed) }
+          );
+          check.dataset.action = "toggle";
+          check.dataset.id = task.id;
+
+          const title = document.createElement("span");
+          title.className = "task-text";
+          title.textContent = task.title;
+
+          const remove = makeButton(
+            "delete-button",
+            `${task.title} 삭제`,
+            '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.5 7h15M9.5 7V4.5h5V7m-7.5 0 1 13h8l1-13M10 10.5v6m4-6v6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+          );
+          remove.dataset.action = "delete";
+          remove.dataset.id = task.id;
+
+          row.append(check, title, remove);
+          taskList.append(row);
+        }
+      }
+
+      document.querySelector("#add-form").addEventListener("submit", (event) => {
+        event.preventDefault();
+        const title = taskInput.value.trim();
+        if (!title) return;
+        tasks.unshift({ id: `${Date.now()}-${Math.random().toString(36).slice(2)}`, title, completed: false });
+        selectedFilter = "all";
+        saveTasks();
+        render();
+        taskInput.value = "";
+        taskInput.focus();
+      });
+
+      document.querySelector("#list-create-form").addEventListener("submit", (event) => {
+        event.preventDefault();
+        const name = listNameInput.value.trim();
+        if (!name) return;
+        const list = { id: `${Date.now()}-${Math.random().toString(36).slice(2)}`, name, tasks: [] };
+        lists.push(list);
+        activeListId = list.id;
+        tasks = list.tasks;
+        selectedFilter = "all";
+        saveTasks();
+        render();
+        listNameInput.value = "";
+        taskInput.focus();
+      });
+
+      listSpaces.addEventListener("click", (event) => {
+        const button = event.target.closest("button[data-action]");
+        if (!button) return;
+        const list = lists.find((item) => item.id === button.dataset.listId);
+        if (!list) return;
+        if (button.dataset.action === "select-list") {
+          activeListId = list.id;
+          tasks = list.tasks;
+          selectedFilter = "all";
+        } else if (button.dataset.action === "delete-list" && lists.length > 1) {
+          if (!window.confirm(`'${list.name}' 목록과 안의 할 일을 삭제할까요?`)) return;
+          lists = lists.filter((item) => item.id !== list.id);
+          if (activeListId === list.id) {
+            activeListId = lists[0].id;
+            tasks = activeList().tasks;
+          }
+          selectedFilter = "all";
+          saveTasks();
+        } else return;
+        render();
+      });
+
+      taskList.addEventListener("click", (event) => {
+        const button = event.target.closest("button[data-action]");
+        if (!button) return;
+        const task = tasks.find((item) => item.id === button.dataset.id);
+        if (!task) return;
+        if (button.dataset.action === "toggle") task.completed = !task.completed;
+        else if (button.dataset.action === "delete") tasks = tasks.filter((item) => item.id !== task.id);
+        else return;
+        saveTasks();
+        render();
+      });
+
+      filters.addEventListener("click", (event) => {
+        const button = event.target.closest("button[data-filter]");
+        if (!button) return;
+        selectedFilter = button.dataset.filter;
+        render();
+      });
+
+      completedActions.addEventListener("click", () => {
+        tasks = tasks.filter((task) => !task.completed);
+        saveTasks();
+        render();
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>

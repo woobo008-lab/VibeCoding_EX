@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f2f6f3">
+  <title>오늘의 할 일</title>
+  <!-- 페이지 스타일 -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- 페이지 전체 영역 -->
+  <div class="app-shell">
+    <!-- 브랜드와 오늘 날짜 -->
+    <header class="topline">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.3 4.3L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="brand-copy">
+          <span class="brand-name">DAYMARK</span>
+          <h1 id="page-title">오늘의 할 일</h1>
+        </span>
+      </div>
+      <time class="today-date" id="today-date"></time>
+    </header>
+
+    <!-- 할 일 앱 본문 -->
+    <main class="app-main">
+    <!-- 입력과 목록 화면 전환 -->
+    <nav class="view-tabs" aria-label="화면 선택">
+      <button class="view-tab" type="button" data-view="input" aria-pressed="false">입력</button>
+      <button class="view-tab" type="button" data-view="lists" aria-pressed="true">목록</button>
+    </nav>
+
+    <!-- 새 할 일 입력 화면 -->
+    <section class="view-panel input-panel" id="input-panel" aria-labelledby="input-panel-title" hidden>
+      <h2 class="input-panel-title" id="input-panel-title">새 할 일 입력</h2>
+      <form class="add-form" id="add-form">
+        <label class="visually-hidden" for="task-input">새 할 일</label>
+        <input class="add-input" id="task-input" name="task" type="text" maxlength="120" placeholder="새로운 할 일을 입력하세요" autocomplete="off" required>
+        <button class="add-button" type="submit" aria-label="할 일 추가">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <span>추가</span>
+        </button>
+      </form>
+      <div class="task-destination">
+        <label for="task-list-select">목록 선택</label>
+        <select class="task-list-select" id="task-list-select"></select>
+      </div>
+      <section class="list-create-entry" aria-labelledby="list-create-title">
+        <h3 class="workspace-label" id="list-create-title">새 목록 만들기</h3>
+        <form class="list-create-form" id="list-create-form">
+          <label class="visually-hidden" for="list-name-input">새 목록 이름</label>
+          <input class="list-name-input" id="list-name-input" type="text" maxlength="30" placeholder="새 목록 이름" autocomplete="off" required>
+          <button class="list-create-button" type="submit" aria-label="목록 추가">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <span>목록 추가</span>
+          </button>
+        </form>
+      </section>
+    </section>
+
+    <!-- 목록 선택과 할 일 관리 화면 -->
+    <section class="view-panel list-panel" id="list-panel" aria-label="목록과 할 일">
+      <!-- 목록 공간 생성과 전환 -->
+      <section class="workspace" aria-labelledby="workspace-title">
+        <div class="workspace-heading">
+          <h2 class="workspace-label" id="workspace-title">내 목록 공간</h2>
+        </div>
+        <nav class="list-spaces" id="list-spaces" aria-label="할 일 목록 공간"></nav>
+      </section>
+
+      <!-- 선택한 목록의 할 일 관리 -->
+      <section aria-labelledby="list-title">
+      <!-- 목록 제목, 남은 작업, 필터 -->
+      <div class="overview">
+        <div>
+          <div class="section-heading">
+            <h2 class="section-title" id="list-title">내 할 일</h2>
+          </div>
+          <p class="remaining" id="remaining-count" aria-live="polite"></p>
+        </div>
+        <nav class="filters" aria-label="할 일 필터">
+          <button class="filter-button" type="button" data-filter="all" aria-pressed="true">전체</button>
+          <button class="filter-button" type="button" data-filter="active" aria-pressed="false">진행 중</button>
+          <button class="filter-button" type="button" data-filter="completed" aria-pressed="false">완료</button>
+        </nav>
+      </div>
+      <!-- 전체 완료율 -->
+      <div class="progress-track" role="progressbar" aria-label="오늘의 완료율" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+      <div class="list-actions" id="completed-actions" hidden>
+        <button class="clear-completed-button" id="clear-completed" type="button">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.5 7h15M9.5 7V4.5h5V7m-7.5 0 1 13h8l1-13M10 10.5v6m4-6v6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          완료 항목 모두 삭제
+        </button>
+      </div>
+      <!-- 할 일 항목 표시 영역 -->
+      <ul class="task-list" id="task-list" aria-label="할 일 목록"></ul>
+      </section>
+    </section>
+    </main>
+
+    <!-- 페이지 하단 정보 -->
+    <footer class="site-footer">
+      <span class="footer-brand">DAYMARK</span>
+      <p>목록은 이 브라우저에 저장됩니다.</p>
+    </footer>
+  </div>
+
+  <!-- 앱 동작 스크립트 -->
+  <script src="app.js" defer></script>
+</body>
+</html>

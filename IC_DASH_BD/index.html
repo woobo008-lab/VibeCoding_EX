@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f1f6f2">
+  <meta name="description" content="월별 판매, 누적 합계, 시장 점유율을 보여주는 대시보드입니다.">
+  <title>월별 판매 현황</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.5.3/papaparse.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <main class="page-shell">
+    <header class="page-header">
+      <div class="wordmark">
+        <span class="wordmark-mark" aria-hidden="true">C</span>
+        <span>CHART BOARD</span>
+      </div>
+      <div class="page-header-actions">
+        <span class="collection-label">Chart.js 4.5</span>
+        <label class="download-button upload-button" for="sales-csv-input" title="월, 판매량, 점유율 열이 있는 CSV 불러오기">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 16V4m0 0L8 8m4-4 4 4M5 14v5h14v-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>CSV</span>
+        </label>
+        <input class="visually-hidden" id="sales-csv-input" type="file" accept=".csv,text/csv" aria-label="판매 데이터 CSV 파일 선택">
+        <button class="download-button" id="download-dashboard" type="button" aria-label="정지 대시보드 PNG 다운로드" title="정지 대시보드 PNG 다운로드">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v11m0 0 4-4m-4 4-4-4M5 15v4h14v-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>PNG</span>
+        </button>
+      </div>
+    </header>
+
+    <h1>월별 판매 현황</h1>
+    <p class="csv-status" id="csv-status" role="status" aria-live="polite" hidden></p>
+
+    <section class="chart-grid" aria-label="월별 판매와 누적 합계 차트">
+      <article class="chart-panel">
+        <header class="chart-header">
+          <h2 class="chart-title">월별 판매</h2>
+          <div class="chart-header-actions">
+            <span class="chart-index">01</span>
+            <button class="bar-toggle" id="toggle-simulation" type="button" aria-label="모의 시작" aria-pressed="false" title="모의 시작">
+              <svg class="simulation-play" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m8 5 12 7-12 7V5Z" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+              <svg class="simulation-pause" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 5h3v14H8zM15 5h3v14h-3z" fill="currentColor"/></svg>
+            </button>
+          </div>
+        </header>
+        <div class="chart-frame">
+          <canvas id="chart-one" aria-label="월별 판매 막대 차트"></canvas>
+        </div>
+      </article>
+      <article class="chart-panel">
+        <header class="chart-header">
+          <h2 class="chart-title">누적 합계</h2>
+          <span class="chart-index">02</span>
+        </header>
+        <div class="chart-frame">
+          <canvas id="chart-two" aria-label="월별 판매 누적 합계 선 차트"></canvas>
+        </div>
+      </article>
+      <article class="chart-panel">
+        <header class="chart-header">
+          <h2 class="chart-title">시장 점유율</h2>
+          <span class="chart-index" id="market-share-month">대기</span>
+        </header>
+        <div class="chart-frame">
+          <canvas id="chart-market-share" aria-label="현재 월 시장 점유율 원형 차트"></canvas>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>
