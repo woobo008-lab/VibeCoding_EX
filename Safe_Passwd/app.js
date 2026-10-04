@@ -11,6 +11,8 @@ const lengthInput = document.querySelector("#length");
 const lengthValue = document.querySelector("#length-value");
 const ambiguousInput = document.querySelector("#ambiguous");
 const statusText = document.querySelector("#status");
+const strengthFill = document.querySelector("#strength-fill");
+const strengthText = document.querySelector("#strength-text");
 const checkboxes = Object.keys(SETS).map((key) => document.querySelector(`#${key}`));
 
 // 나머지 연산 편향을 피하기 위해 범위를 벗어난 값은 버립니다.
@@ -49,14 +51,34 @@ function setStatus(message, isError = false) {
   statusText.classList.toggle("error", isError);
 }
 
+// 무작위 생성이므로 길이 × log2(전체 문자 수)로 엔트로피를 계산합니다.
+function renderStrength(length, sets) {
+  const poolSize = new Set(sets.join("")).size;
+  const bits = poolSize > 0 ? Math.round(length * Math.log2(poolSize)) : 0;
+  const levels = [
+    { min: 0, label: "매우 약함", color: "#dc2626", width: 15 },
+    { min: 40, label: "약함", color: "#ea580c", width: 35 },
+    { min: 60, label: "보통", color: "#ca8a04", width: 55 },
+    { min: 80, label: "강함", color: "#16a34a", width: 80 },
+    { min: 100, label: "매우 강함", color: "#047857", width: 100 },
+  ];
+  const level = poolSize === 0 ? null : levels.filter((item) => bits >= item.min).pop();
+  strengthFill.style.width = level ? `${level.width}%` : "0";
+  strengthFill.style.background = level?.color ?? "transparent";
+  strengthText.textContent = level ? `보안 강도: ${level.label} (${bits}비트)` : "";
+}
+
 function render() {
   const sets = activeSets();
   if (sets.length === 0) {
     passwordOutput.textContent = "";
+    renderStrength(0, sets);
     setStatus("문자 종류를 하나 이상 선택해 주세요.", true);
     return;
   }
-  passwordOutput.textContent = generatePassword(Number(lengthInput.value), sets);
+  const length = Number(lengthInput.value);
+  passwordOutput.textContent = generatePassword(length, sets);
+  renderStrength(length, sets);
   setStatus("");
 }
 

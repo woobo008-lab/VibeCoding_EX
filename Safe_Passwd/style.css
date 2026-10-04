@@ -35,7 +35,30 @@ h1 {
 .output {
   display: flex;
   gap: 8px;
+  margin-bottom: 12px;
+}
+
+.strength {
   margin-bottom: 20px;
+}
+
+.strength-bar {
+  height: 8px;
+  overflow: hidden;
+  background: #e5e7eb;
+  border-radius: 4px;
+}
+
+#strength-fill {
+  height: 100%;
+  transition: width 0.2s, background 0.2s;
+}
+
+.strength-text {
+  margin: 6px 0 0;
+  min-height: 1.2em;
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 
 output {
