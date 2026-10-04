@@ -13,6 +13,24 @@ const ambiguousInput = document.querySelector("#ambiguous");
 const statusText = document.querySelector("#status");
 const strengthFill = document.querySelector("#strength-fill");
 const strengthText = document.querySelector("#strength-text");
+const toggleButton = document.querySelector("#toggle-button");
+const eyeOpen = document.querySelector("#eye-open");
+const eyeClosed = document.querySelector("#eye-closed");
+
+let currentPassword = "";
+let passwordVisible = true;
+
+function renderPassword() {
+  passwordOutput.textContent = passwordVisible
+    ? currentPassword
+    : "•".repeat(currentPassword.length);
+  const label = passwordVisible ? "비밀번호 숨기기" : "비밀번호 보기";
+  toggleButton.setAttribute("aria-pressed", String(passwordVisible));
+  toggleButton.setAttribute("aria-label", label);
+  toggleButton.title = label;
+  eyeOpen.hidden = !passwordVisible;
+  eyeClosed.hidden = passwordVisible;
+}
 const checkboxes = Object.keys(SETS).map((key) => document.querySelector(`#${key}`));
 
 // 나머지 연산 편향을 피하기 위해 범위를 벗어난 값은 버립니다.
@@ -71,13 +89,15 @@ function renderStrength(length, sets) {
 function render() {
   const sets = activeSets();
   if (sets.length === 0) {
-    passwordOutput.textContent = "";
+    currentPassword = "";
+    renderPassword();
     renderStrength(0, sets);
     setStatus("문자 종류를 하나 이상 선택해 주세요.", true);
     return;
   }
   const length = Number(lengthInput.value);
-  passwordOutput.textContent = generatePassword(length, sets);
+  currentPassword = generatePassword(length, sets);
+  renderPassword();
   renderStrength(length, sets);
   setStatus("");
 }
@@ -89,8 +109,13 @@ lengthInput.addEventListener("input", () => {
 [...checkboxes, ambiguousInput].forEach((input) => input.addEventListener("change", render));
 document.querySelector("#generate-button").addEventListener("click", render);
 
+toggleButton.addEventListener("click", () => {
+  passwordVisible = !passwordVisible;
+  renderPassword();
+});
+
 document.querySelector("#copy-button").addEventListener("click", async () => {
-  const password = passwordOutput.textContent;
+  const password = currentPassword;
   if (!password) return;
   try {
     await navigator.clipboard.writeText(password);

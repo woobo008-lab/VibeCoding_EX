@@ -65,13 +65,56 @@ h1 {
 }
 
 output {
+  display: block;
   min-height: 48px;
-  padding: 12px;
+  padding: 12px 48px 12px 12px;
   overflow-wrap: anywhere;
   font-family: Consolas, "Courier New", monospace;
   font-size: 1.05rem;
   background: #f3f4f6;
   border-radius: 8px;
+}
+
+.password-box {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.password-box > * {
+  grid-area: 1 / 1;
+}
+
+.icon-button {
+  align-self: center;
+  justify-self: end;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin-right: 6px;
+  padding: 0;
+  color: #4b5563;
+  background: transparent;
+}
+
+.icon-button:hover,
+.icon-button:focus-visible {
+  color: #4f46e5;
+  background: #e0e7ff;
+}
+
+.icon-button svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.icon-button svg[hidden] {
+  display: none;
 }
 
 button {
