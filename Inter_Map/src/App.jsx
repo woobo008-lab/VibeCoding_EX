@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { divIcon } from 'leaflet'
 import { MapContainer, Marker, Popup, TileLayer, useMapEvents } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -108,8 +108,7 @@ function App() {
   const [isSatellite, setIsSatellite] = useState(false)
   const [newPin, setNewPin] = useState(null)
   const [importMessage, setImportMessage] = useState('')
-  const [availablePinFiles, setAvailablePinFiles] = useState(null)
-  const [selectedPinFile, setSelectedPinFile] = useState('')
+  const importFileInput = useRef(null)
 
   useEffect(() => {
     try {
@@ -130,48 +129,38 @@ function App() {
     }))
   }
 
-  const exportPins = async () => {
+  const exportPins = () => {
     try {
-      const response = await fetch('/api/pin-files', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ version: 1, pins }),
-      })
-      const result = await response.json()
-      if (!response.ok) throw new Error(result.error || 'JSON 파일을 저장하지 못했습니다.')
-      setImportMessage(`json 폴더에 ${result.filename} 파일로 저장했습니다.`)
-      setAvailablePinFiles(null)
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+      const filename = `inter-map-pins-${timestamp}.json`
+      const blob = new Blob(
+        [`${JSON.stringify({ version: 1, pins }, null, 2)}\n`],
+        { type: 'application/json' },
+      )
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = filename
+      document.body.append(link)
+      link.click()
+      link.remove()
+      window.setTimeout(() => URL.revokeObjectURL(url), 0)
+      setImportMessage(`${filename} 파일을 다운로드했습니다.`)
     } catch (error) {
       setImportMessage(`JSON 내보내기에 실패했습니다: ${error.message}`)
     }
   }
 
-  const showPinFiles = async () => {
-    try {
-      const response = await fetch('/api/pin-files')
-      const result = await response.json()
-      if (!response.ok) throw new Error(result.error || 'JSON 파일 목록을 가져오지 못했습니다.')
-      setAvailablePinFiles(result.files)
-      setSelectedPinFile(result.files[0] ?? '')
-      setImportMessage(
-        result.files.length
-          ? 'json 폴더에서 가져올 파일을 선택하세요.'
-          : 'json 폴더에 가져올 JSON 파일이 없습니다.',
-      )
-    } catch (error) {
-      setImportMessage(`JSON 파일 목록을 불러오지 못했습니다: ${error.message}`)
-    }
-  }
-
-  const importPins = async () => {
-    if (!selectedPinFile) return
+  const importPins = async (event) => {
+    const file = event.target.files?.[0]
+    if (!file) return
 
     try {
-      const response = await fetch(
-        `/api/pin-files/${encodeURIComponent(selectedPinFile)}`,
-      )
-      const importedData = await response.json()
-      if (!response.ok) throw new Error(importedData.error || 'JSON 파일을 읽지 못했습니다.')
+      if (file.size > 5 * 1024 * 1024) {
+        throw new Error('파일이 너무 큽니다. 5MB 이하의 JSON 파일을 선택해 주세요.')
+      }
+
+      const importedData = JSON.parse(await file.text())
 
       const importedPins =
         importedData &&
@@ -191,10 +180,11 @@ function App() {
         category: pin.category ?? '기타',
       }))
       updatePins((currentPins) => [...currentPins, ...pinsWithNewIds])
-      setImportMessage(`${selectedPinFile}에서 ${pinsWithNewIds.length}개의 핀을 추가했습니다.`)
-      setAvailablePinFiles(null)
+      setImportMessage(`${file.name}에서 ${pinsWithNewIds.length}개의 핀을 추가했습니다.`)
     } catch (error) {
       setImportMessage(`JSON 가져오기에 실패했습니다: ${error.message}`)
+    } finally {
+      event.target.value = ''
     }
   }
 
@@ -335,27 +325,17 @@ function App() {
               <button type="button" onClick={exportPins}>
                 JSON 내보내기
               </button>
-              <button type="button" onClick={showPinFiles}>
+              <button type="button" onClick={() => importFileInput.current?.click()}>
                 JSON 가져오기
               </button>
+              <input
+                ref={importFileInput}
+                type="file"
+                accept=".json,application/json"
+                onChange={importPins}
+                hidden
+              />
             </div>
-            {availablePinFiles?.length > 0 && (
-              <div className="pin-import-picker">
-                <label htmlFor="pin-import-file">json 폴더의 파일</label>
-                <select
-                  id="pin-import-file"
-                  value={selectedPinFile}
-                  onChange={(event) => setSelectedPinFile(event.target.value)}
-                >
-                  {availablePinFiles.map((filename) => (
-                    <option key={filename} value={filename}>{filename}</option>
-                  ))}
-                </select>
-                <button type="button" onClick={importPins} disabled={!selectedPinFile}>
-                  선택한 파일 가져오기
-                </button>
-              </div>
-            )}
             {importMessage && (
               <p className="pin-import-message" role="status">{importMessage}</p>
             )}

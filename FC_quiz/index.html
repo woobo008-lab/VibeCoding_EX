@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="AI 핵심 용어 플래시카드를 한 장씩 넘기며 배우고 암기해 보세요."
+    />
+    <title>AI 용어 탐험</title>
+    <link rel="stylesheet" href="style.css" />
+    <script defer src="js/flashcards.js"></script>
+    <script defer src="js/ui.js"></script>
+    <script defer src="js/narration.js"></script>
+    <script defer src="js/wikipedia.js"></script>
+    <script defer src="js/deck-io.js"></script>
+    <script defer src="js/google-drive-config.js"></script>
+    <script defer src="js/google-drive.js"></script>
+    <script defer src="js/main.js"></script>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-header">
+        <a class="brand" href="./" aria-label="AI 용어 플래시카드 홈">
+          <span class="brand-mark" aria-hidden="true">AI</span>
+          <span>용어 탐험</span>
+        </a>
+        <span class="header-note">
+          <span class="status-dot" aria-hidden="true"></span>
+          플래시카드 학습
+        </span>
+        <div class="header-actions" aria-label="카드 도구">
+          <div class="deck-tools">
+            <button
+              class="tool-button"
+              id="drive-connect-button"
+              type="button"
+              aria-label="Google Drive 연결"
+            >
+              Drive 연결
+            </button>
+            <button
+              class="tool-button"
+              id="drive-save-button"
+              type="button"
+              aria-label="Google Drive FC_quiz 폴더에 카드 저장"
+              hidden
+            >
+              Drive 저장
+            </button>
+            <button
+              class="tool-button"
+              id="drive-load-button"
+              type="button"
+              aria-label="Google Drive FC_quiz 폴더에서 카드 불러오기"
+              hidden
+            >
+              Drive 불러오기
+            </button>
+          </div>
+          <button
+            class="narration-toggle"
+            id="narration-toggle"
+            type="button"
+            aria-label="안내 음성 끄기"
+            aria-pressed="true"
+          >
+            <span aria-hidden="true">◖))</span>
+            <span id="narration-label">안내 음성 켜짐</span>
+          </button>
+        </div>
+      </header>
+
+      <main>
+        <section class="intro-card" id="intro-screen" aria-labelledby="intro-title">
+          <div class="intro-copy">
+            <p class="eyebrow"><span aria-hidden="true">✳</span> AI BASICS</p>
+            <h1 id="intro-title">AI 용어를 한 장씩<br />익혀 보세요</h1>
+            <p class="intro-description">
+              용어를 보고 뜻을 떠올린 다음 카드를 눌러 확인하세요.
+              외운 카드는 목록에서 빼고, 어려운 카드는 다시 돌려볼 수 있어요.
+            </p>
+            <div class="intro-meta" aria-label="학습 정보">
+              <span><span aria-hidden="true">▤</span> 카드 10장</span>
+              <span><span aria-hidden="true">◷</span> 내 속도에 맞춰</span>
+              <span><span aria-hidden="true">◎</span> 암기 카드 10장</span>
+            </div>
+            <button
+              class="button button-primary"
+              id="start-button"
+              type="button"
+              aria-label="카드 학습 시작"
+            >
+              카드 학습 시작 <span aria-hidden="true">→</span>
+            </button>
+          </div>
+          <div class="intro-art" aria-hidden="true">
+            <div class="orbit orbit-one"></div>
+            <div class="orbit orbit-two"></div>
+            <div class="orbit orbit-three"></div>
+            <div class="spark spark-one">✦</div>
+            <div class="spark spark-two">✳</div>
+            <div class="spark spark-three">·</div>
+            <div class="ai-orb">
+              <span>AI</span>
+              <i></i>
+            </div>
+            <div class="float-card float-card-top">생각을 넓히는<br />새로운 지식</div>
+            <div class="float-card float-card-bottom">
+              <span class="tiny-dot"></span> Learn something new
+            </div>
+          </div>
+        </section>
+
+        <section class="study-card" id="study-screen" aria-labelledby="flashcard-term" hidden>
+          <div class="study-topline">
+            <span class="question-count">AI 용어 플래시카드</span>
+            <span class="score-label">남은 카드 <strong id="remaining-count">10 / 10</strong></span>
+          </div>
+          <div
+            class="progress-track"
+            role="progressbar"
+            aria-label="암기 진행률"
+            aria-valuemin="0"
+            aria-valuemax="10"
+            aria-valuenow="0"
+            id="flashcard-progress"
+          >
+            <div class="progress-fill" id="flashcard-progress-fill"></div>
+          </div>
+          <button
+            class="flashcard-face"
+            id="flashcard-toggle"
+            type="button"
+            aria-pressed="false"
+            aria-label="AI 용어 플래시카드. 눌러서 뜻을 확인하세요."
+          >
+            <span class="flashcard-inner" id="flashcard-inner">
+              <span class="flashcard-side flashcard-front">
+                <span class="question-category">용어</span>
+                <span class="flashcard-question" id="flashcard-term"></span>
+                <span class="flashcard-hint">카드를 누르면 답이 보여요</span>
+              </span>
+              <span class="flashcard-side flashcard-back" aria-hidden="true">
+                <span class="flashcard-answer" id="flashcard-answer"></span>
+                <span class="flashcard-explanation" id="flashcard-explanation"></span>
+                <span class="flashcard-hint">다시 누르면 용어로 돌아가요</span>
+              </span>
+            </span>
+          </button>
+          <a
+            class="flashcard-source"
+            id="flashcard-source"
+            target="_blank"
+            rel="noopener noreferrer"
+            hidden
+          ></a>
+          <div class="confidence-actions" id="confidence-actions" hidden>
+            <p>이 카드를 어떻게 할까요?</p>
+            <div>
+              <button
+                class="button button-confidence"
+                id="review-button"
+                type="button"
+                aria-label="다시 볼래요. 카드를 덱 뒤로 보내기"
+              >
+                다시 볼래요 <span aria-hidden="true">↻</span>
+              </button>
+              <button
+                class="button button-primary"
+                id="known-button"
+                type="button"
+                aria-label="암기함. 카드를 목록에서 제거하기"
+              >
+                암기함 <span aria-hidden="true">✓</span>
+              </button>
+            </div>
+          </div>
+          <div class="flashcard-empty" id="flashcard-empty" hidden>
+            <strong>모든 카드를 암기했어요!</strong>
+            <span>수고했어요. 새로운 카드로 학습하려면 아래 버튼을 눌러 주세요.</span>
+            <button
+              class="button button-primary"
+              id="restart-study-button"
+              type="button"
+              aria-label="위키백과에서 새로운 플래시카드 10장 만들기"
+            >
+              위키백과에서 새 카드 10장 만들기 <span aria-hidden="true">↻</span>
+            </button>
+          </div>
+          <div class="study-footer">
+            <span class="keyboard-hint">암기 완료 <strong id="memorized-count">0 / 10</strong></span>
+          </div>
+        </section>
+      </main>
+      <p class="app-status" id="app-status" role="status" aria-live="polite" hidden></p>
+
+      <footer class="site-footer">
+        <span>작은 호기심이 큰 배움이 됩니다.</span>
+        <span>AI 용어 탐험 <span aria-hidden="true">✳</span></span>
+      </footer>
+    </div>
+  </body>
+</html>
