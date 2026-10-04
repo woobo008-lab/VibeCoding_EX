@@ -55,8 +55,10 @@ async function connectDrive() {
 async function saveDeckToDrive() {
   driveSaveButton.disabled = true;
   try {
-    await window.FCGoogleDrive.save(study.allCards);
-    ui.setStatus(`카드 ${study.totalCount}장을 Google Drive의 FC_quiz 폴더에 저장했습니다.`);
+    const savedFile = await window.FCGoogleDrive.save(study.allCards);
+    ui.setStatus(
+      `카드 ${study.totalCount}장을 Google Drive의 FC_quiz 폴더에 ${savedFile.name} 파일로 저장했습니다.`,
+    );
   } catch (error) {
     ui.setStatus(error.message, true);
     console.error("Google Drive 카드 저장에 실패했습니다.", error);
@@ -69,7 +71,8 @@ async function loadDeckFromDrive() {
   driveLoadButton.disabled = true;
   try {
     const cards = await window.FCGoogleDrive.load();
-    if (!window.confirm("Google Drive의 카드 10장으로 현재 덱을 교체할까요?")) return;
+    if (!cards) return;
+    if (!window.confirm(`선택한 파일의 카드 ${cards.length}장으로 현재 덱을 교체할까요?`)) return;
     study.replaceCards(cards);
     ui.showStudy();
     ui.renderFlashcard(study);

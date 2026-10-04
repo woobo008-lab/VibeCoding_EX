@@ -5,7 +5,7 @@ window.FCGoogleDrive = (() => {
   const DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
   const FOLDER_NAME = "FC_quiz";
   const FOLDER_STORAGE_KEY = "fc-quiz-google-drive-folder-id";
-  const FILE_NAME = "ai-flashcards.json";
+  const FILE_PREFIX = "ai-flashcards";
   const FOLDER_MIME_TYPE = "application/vnd.google-apps.folder";
   const FILE_MIME_TYPE = "application/json";
   const API_URL = "https://www.googleapis.com/drive/v3";
@@ -198,19 +198,54 @@ window.FCGoogleDrive = (() => {
     return folderId;
   }
 
-  async function getDeckFile(folderId) {
+  function createFileName() {
+    const now = new Date();
+    const pad = (value) => String(value).padStart(2, "0");
+    const date = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}`;
+    const time = `${pad(now.getHours())}${pad(now.getMinutes())}`;
+    return `${FILE_PREFIX}-${date}-${time}.json`;
+  }
+
+  async function getDeckFile(folderId, fileName) {
     const query =
-      `'${folderId}' in parents and name = '${FILE_NAME}' and trashed = false`;
+      `'${folderId}' in parents and name = '${fileName}' and trashed = false`;
     const [file] = await listFiles(query);
     return file ?? null;
   }
 
+  async function chooseDeckFile(folderId) {
+    await loadPicker();
+    return new Promise((resolve) => {
+      const view = new window.google.picker.DocsView(window.google.picker.ViewId.DOCS)
+        .setParent(folderId)
+        .setIncludeFolders(false)
+        .setMimeTypes(FILE_MIME_TYPE)
+        .setMode(window.google.picker.DocsViewMode.LIST);
+      const picker = new window.google.picker.PickerBuilder()
+        .addView(view)
+        .setAppId(APP_ID)
+        .setDeveloperKey(API_KEY)
+        .setOAuthToken(accessToken)
+        .setTitle("불러올 카드 파일을 선택하세요")
+        .setCallback((data) => {
+          if (data.action === window.google.picker.Action.PICKED) {
+            resolve(data.docs?.[0] ?? null);
+          } else if (data.action === window.google.picker.Action.CANCEL) {
+            resolve(null);
+          }
+        })
+        .build();
+      picker.setVisible(true);
+    });
+  }
+
   async function save(cards) {
     const folderId = await getFolder();
-    const existingFile = await getDeckFile(folderId);
+    const fileName = createFileName();
+    const existingFile = await getDeckFile(folderId, fileName);
     const metadata = existingFile
-      ? { name: FILE_NAME }
-      : { name: FILE_NAME, mimeType: FILE_MIME_TYPE, parents: [folderId] };
+      ? { name: fileName }
+      : { name: fileName, mimeType: FILE_MIME_TYPE, parents: [folderId] };
     const boundary = `fcquiz_${crypto.randomUUID()}`;
     const body = [
       `--${boundary}`,
@@ -242,13 +277,13 @@ window.FCGoogleDrive = (() => {
     );
     const savedFile = await response.json();
     if (!savedFile.id) throw new Error("Google Drive에 카드를 저장하지 못했습니다.");
-    return savedFile;
+    return { ...savedFile, name: fileName };
   }
 
   async function load() {
     const folderId = await getFolder();
-    const file = await getDeckFile(folderId);
-    if (!file) throw new Error("Google Drive의 FC_quiz 폴더에 저장된 카드 파일이 없습니다.");
+    const file = await chooseDeckFile(folderId);
+    if (!file) return null;
 
     const response = await request(`${API_URL}/files/${file.id}?alt=media`);
     let data;
