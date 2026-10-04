@@ -28,9 +28,9 @@
    - **웹사이트 제한사항:** `https://woobo008-lab.github.io/*` 와 `https://docs.google.com/*` 를 각각 추가합니다. Picker 창이 `docs.google.com` 안에서 열리므로 두 번째 주소도 꼭 필요합니다.
    - **API 제한사항:** 키 제한을 선택하고 **Google Picker API**와 **Google Drive API**를 허용합니다.
 4. **Google Auth Platform → 브랜딩 / 대상**에서 OAuth 동의 화면을 설정하고, 앱을 테스트 중이면 사용할 Google 계정을 테스트 사용자로 추가합니다.
-5. **Google Auth Platform → 클라이언트 → 클라이언트 만들기**에서 **웹 애플리케이션** 클라이언트를 만듭니다. **승인된 JavaScript 원본**에 `https://woobo008-lab.github.io` 를 추가합니다. 페이지 경로(`/Inter_Map/FC_quiz/`)는 원본에 넣지 않습니다.
+5. **Google Auth Platform → 클라이언트 → 클라이언트 만들기**에서 **웹 애플리케이션** 클라이언트를 만듭니다. **승인된 JavaScript 원본**에 `https://woobo008-lab.github.io` 를 추가합니다. 페이지 경로(`/VibeCoding_EX/FC_quiz/`)는 원본에 넣지 않습니다.
 6. [Google Drive 설정](https://developers.google.com/drive/picker/guides/web-picker)에 필요한 Cloud 프로젝트 번호를 확인한 뒤 `js/google-drive-config.js`에 `clientId`, `apiKey`, `appId`를 입력합니다. 현재 `clientId`와 `appId`는 등록되어 있으며, 위에서 만든 **API Key만 `apiKey`에 추가**하면 됩니다. Client ID와 API Key는 브라우저용 공개 식별자입니다. OAuth 클라이언트 비밀 정보는 만들거나 앱에 넣지 않습니다.
-7. GitHub 저장소에서 Pages를 **GitHub Actions** 배포로 설정하고 `main` 브랜치에 변경 사항을 푸시하면 앱이 `https://woobo008-lab.github.io/Inter_Map/FC_quiz/`에 배포됩니다. 기존 루트 홈페이지와 포트폴리오는 유지됩니다.
+7. GitHub 저장소에서 Pages를 **GitHub Actions** 배포로 설정하고 `main` 브랜치에 변경 사항을 푸시하면 앱이 `https://woobo008-lab.github.io/VibeCoding_EX/FC_quiz/`에 배포됩니다. 같은 저장소의 다른 프로젝트와 루트 홈페이지도 함께 배포됩니다.
 
 앱은 `drive.file` 권한만 요청합니다. 첫 연결 때 Google Picker에서 이름이 정확히 `FC_quiz`인 폴더를 선택하고, 폴더 ID는 현재 브라우저에 저장됩니다. 액세스 토큰은 메모리에만 보관되며 페이지를 새로고침하면 Drive에 다시 연결해야 합니다.
 

@@ -1,5 +1,5 @@
 window.FCGoogleDriveConfig = {
-  clientId: "215198456298-k5qq10d3ijlht60do3ch76q1bim1mskt.apps.googleusercontent.com",
+  clientId: "215198456298-t3nnd6gg8atq0gucqm0fgads83l1oria.apps.googleusercontent.com",
   apiKey: "AIzaSyCMYcijHgV2uvoa5fC6V-L_P-YHEVBHyQQ",
   appId: "215198456298",
 };
