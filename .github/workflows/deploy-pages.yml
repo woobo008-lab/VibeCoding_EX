@@ -39,7 +39,7 @@ jobs:
         run: |
           mkdir -p _site
           cp index.html portfolio.html _site/
-          for d in FC_quiz AI_C_Pallet IC_DASH_BD TODOLIST; do
+          for d in FC_quiz Safe_Passwd AI_C_Pallet IC_DASH_BD TODOLIST; do
             mkdir -p "_site/$d"
             cp -R "$d"/. "_site/$d/"
           done

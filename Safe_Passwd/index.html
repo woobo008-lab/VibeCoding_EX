@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="브라우저 안에서만 만들어지는 안전한 비밀번호 생성기" />
+    <title>Safe_Passwd - 비밀번호 생성기</title>
+    <link rel="stylesheet" href="style.css" />
+    <script defer src="app.js"></script>
+  </head>
+  <body>
+    <main class="card">
+      <h1>Safe_Passwd</h1>
+      <p class="lead">비밀번호는 이 브라우저 안에서만 만들어지며 서버로 전송되거나 저장되지 않습니다.</p>
+
+      <div class="output">
+        <output id="password" aria-live="polite" aria-label="생성된 비밀번호"></output>
+        <button type="button" id="copy-button">복사</button>
+      </div>
+
+      <div class="field">
+        <label for="length">길이: <strong id="length-value">16</strong></label>
+        <input type="range" id="length" min="8" max="64" value="16" />
+      </div>
+
+      <fieldset>
+        <legend>포함할 문자</legend>
+        <label><input type="checkbox" id="lower" checked /> 소문자 (a-z)</label>
+        <label><input type="checkbox" id="upper" checked /> 대문자 (A-Z)</label>
+        <label><input type="checkbox" id="digits" checked /> 숫자 (0-9)</label>
+        <label><input type="checkbox" id="symbols" checked /> 특수문자 (!@#$…)</label>
+        <label><input type="checkbox" id="ambiguous" /> 헷갈리는 문자 제외 (l, I, 1, O, 0)</label>
+      </fieldset>
+
+      <button type="button" id="generate-button" class="primary">새 비밀번호 만들기</button>
+      <p id="status" class="status" role="status" aria-live="polite"></p>
+    </main>
+  </body>
+</html>
