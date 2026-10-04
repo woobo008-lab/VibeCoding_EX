@@ -2,6 +2,8 @@ const STORAGE_KEY = "ai-cbi-conversations";
 const WELCOME_MESSAGE = "안녕하세요! 궁금한 점이나 필요한 일을 편하게 말씀해 주세요.";
 const DEMO_REPLY =
   "메시지를 확인했어요. 현재는 화면 동작을 보여주는 데모라 실제 AI 응답은 연결되어 있지 않습니다.";
+const STREAM_RENDER_INTERVAL_MS = 150;
+const STREAM_SAVE_INTERVAL_MS = 500;
 
 const form = document.querySelector("#chat-form");
 const input = document.querySelector("#message-input");
@@ -315,6 +317,7 @@ function saveChats() {
     saveStatus.textContent = "대화가 자동 저장됩니다";
     return true;
   } catch (error) {
+    persistenceEnabled = false;
     const detail =
       error instanceof Error ? error.message : "알 수 없는 저장 오류입니다.";
     showStorageError(
@@ -647,6 +650,8 @@ function startReply(chat) {
   if (!pending) return;
 
   pending.started = true;
+  pending.lastRenderedAt = Date.now();
+  pending.lastSavedAt = pending.lastRenderedAt;
   pending.bubble.classList.remove("typing-bubble");
   pending.bubble.removeAttribute("role");
   pending.bubble.removeAttribute("aria-label");
@@ -656,14 +661,27 @@ function startReply(chat) {
   pending.interval = window.setInterval(() => {
     pending.message.text += tokens[pending.tokenIndex];
     pending.tokenIndex += 1;
-    renderMarkdown(pending.bubble, pending.message.text);
-    saveChats();
+    const now = Date.now();
+    const isComplete = pending.tokenIndex >= tokens.length;
 
-    if (activeChatId === chat.id) {
-      conversation.scrollTop = conversation.scrollHeight;
+    if (
+      isComplete ||
+      now - pending.lastRenderedAt >= STREAM_RENDER_INTERVAL_MS
+    ) {
+      renderMarkdown(pending.bubble, pending.message.text);
+      pending.lastRenderedAt = now;
+
+      if (activeChatId === chat.id) {
+        conversation.scrollTop = conversation.scrollHeight;
+      }
     }
 
-    if (pending.tokenIndex >= tokens.length) {
+    if (!isComplete && now - pending.lastSavedAt >= STREAM_SAVE_INTERVAL_MS) {
+      saveChats();
+      pending.lastSavedAt = now;
+    }
+
+    if (isComplete) {
       pending.bubble.removeAttribute("aria-live");
       finishPendingReply(chat.id, pending);
     }
