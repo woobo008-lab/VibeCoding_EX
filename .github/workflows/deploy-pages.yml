@@ -45,6 +45,8 @@ jobs:
           done
           mkdir -p _site/Inter_Map
           cp -R Inter_Map/dist/. _site/Inter_Map/
+          mkdir -p _site/ID_Dashboard
+          cp -R ID_Dashboard/. _site/ID_Dashboard/
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
